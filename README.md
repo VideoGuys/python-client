@@ -61,8 +61,8 @@ try:
       title=title, # optional title for the new video
       description=description, # optional description for the new video
       folder_id=folder_id, # optional folder_id for the new video
-      lite=lite, # optional lite setting for the new video
-      public=public, # optional public setting for the new video
+      lite=lite, # optional lite setting for the new video [0 or 1]
+      public=public, # optional public setting for the new video [0 or 1]
     )
     pprint(video_upload)
 
@@ -74,8 +74,8 @@ try:
       title=title, # optional new title for the new video
       description=description, # optional new description for the new video
       folder_id=folder_id, # optional new folder_id for the new video
-      lite=lite, # optional new lite setting for the new video
-      public=public, # optional new public setting for the new video
+      lite=lite, # optional new lite setting for the new video [0 or 1]
+      public=public, # optional new public setting for the new video [0 or 1]
     )
     pprint(video_upload)
 
@@ -91,8 +91,8 @@ try:
       title=title, # optional title for the new url
       description=description, # optional description for the new url
       folder_id=folder_id, # optional folder_id for the new url
-      lite=lite, # optional lite setting for the new url
-      public=public, # optional public setting for the new url
+      lite=lite, # optional lite setting for the new url [0 or 1]
+      public=public, # optional public setting for the new url [0 or 1]
     )
     pprint(url_upload)
     
@@ -104,8 +104,8 @@ try:
       title=title, # optional new title for the new url
       description=description, # optional new description for the new url
       folder_id=folder_id, # optional new folder_id for the new url
-      lite=lite, # optional new lite setting for the new url
-      public=public, # optional new public setting for the new url
+      lite=lite, # optional new lite setting for the new url [0 or 1]
+      public=public, # optional new public setting for the new url [0 or 1]
     )
     pprint(url_upload)
 
@@ -134,7 +134,7 @@ except:
 
 ## Documentation For Authorization
 
- All endpoints except /serve requires authorization.
+ All endpoints except getVideoInfo("<video_code>") requires authorization.
 
 
 ## Author
