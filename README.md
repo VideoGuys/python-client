@@ -134,7 +134,7 @@ except:
 
 ## Documentation For Authorization
 
- All endpoints except getVideoInfo("<video_code>") requires authorization.
+ All endpoints except getVideoInfo("<video_code>") and getVideoPair("<video_code>") requires authorization.
 
 
 ## Author
