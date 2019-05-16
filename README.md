@@ -23,7 +23,7 @@ Or
 Install via [Pip](https://pypi.org/project/pip/) (easiest method).
 
 ```sh
-python -m pip install videoguys
+sudo python -m pip install videoguys
 ```
 
 Then import the package:
