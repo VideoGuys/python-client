@@ -10,7 +10,9 @@ import os
 
 from simple_rest_client.api import API
 from simple_rest_client.resource import Resource
+from simple_rest_client.exceptions import ErrorWithResponse
 from videoguys.clients.upload import UploadClient
+from videoguys.clients.download import DownloadClient
 
 class UploadResource(Resource):
     actions = {
@@ -18,6 +20,11 @@ class UploadResource(Resource):
         'destroy': {'method': 'DELETE', 'url': 'upload/{}'},
         'retrieve': {'method': 'GET', 'url': 'upload/{}'},
         'update': {'method': 'PUT', 'url': 'upload/{}'}
+    }
+
+class DownloadResource(Resource):
+    actions = {
+        'retrieve': {'method': 'POST', 'url': 'serve/video/{}'}
     }
 
 class ApiClient(object):
@@ -52,41 +59,65 @@ class ApiClient(object):
         self.api.add_resource(resource_name='pair')
         self.api.add_resource(resource_name='serve')
         self.api.add_resource(resource_name='upload', resource_class=UploadResource)
+        self.api.add_resource(resource_name='download', resource_class=DownloadResource)
+
+    def fetchResource(self, **kwargs):
+        if 'resource' not in kwargs:
+            raise ValueError("resource must be defined")
+        if 'method' not in kwargs:
+            raise ValueError("method must be defined")
+        if 'params' not in kwargs:
+            raise ValueError("params must be defined")
+        if 'body' not in kwargs:
+            kwargs['body'] = {}
+        try:
+            response = getattr(getattr(self.api, kwargs['resource']), kwargs['method'])(kwargs['params'],body=kwargs['body'])
+        except ErrorWithResponse as e:
+            response = e.response
+        except:
+            raise Error("unexpected error occurred")
+
+        return response;
+
+    def getVideoDownload(self, code, **kwargs):
+        if code is None:
+            raise ValueError("code must be defined")
+        return self.fetchResource(resource='download',method='retrieve',params=code).body
 
     def getVideoInfo(self, code, **kwargs):
         if code is None:
             raise ValueError("code must be defined")
         path = "video/" + code
-        return self.api.serve.retrieve(path).body
+        return self.fetchResource(resource='serve',method='retrieve',params=path).body
 
     def getVideoPair(self, code, **kwargs):
         if code is None:
             raise ValueError("code must be defined")
-        return self.api.pair.retrieve(code).body
+        return self.fetchResource(resource='pair',method='retrieve',params=code).body
 
     def getVideoUploads(self, **kwargs):
-        return self.api.upload.retrieve('video').body
+        return self.fetchResource(resource='upload',method='retrieve',params='video').body
 
     def getVideoUpload(self, code, **kwargs):
         if code is None:
             raise ValueError("code must be defined")
         path = "video/" + code
-        return self.api.upload.retrieve(path).body
+        return self.fetchResource(resource='upload',method='retrieve',params=path).body
 
     def getUrlUploads(self, **kwargs):
-        return self.api.upload.retrieve('url').body
+        return self.fetchResource(resource='upload',method='retrieve',params='url').body
 
     def getUrlUpload(self, code, **kwargs):
         if code is None:
             raise ValueError("code must be defined")
         path = "url/" + code
-        return self.api.upload.retrieve(path).body
+        return self.fetchResource(resource='upload',method='retrieve',params=path).body
 
     def getUrlUploadStatus(self, code, **kwargs):
         if code is None:
             raise ValueError("code must be defined")
         path = "url/" + code + "/status"
-        return self.api.upload.retrieve(path).body
+        return self.fetchResource(resource='upload',method='retrieve',params=path).body
 
     def newVideoUpload(self, **kwargs):
         if 'filepath' in kwargs:
@@ -110,7 +141,7 @@ class ApiClient(object):
         for key in body_params:
             if key in kwargs:
                 body[key] = kwargs[key]
-        return self.api.upload.create(type, body=body).body
+        return self.fetchResource(resource='upload',method='create',params=type,body=body).body
 
     def deleteVideoUpload(self, code, **kwargs):
         return self.deleteUpload('video', code, **kwargs)
@@ -120,7 +151,7 @@ class ApiClient(object):
 
     def deleteUpload(self, type, code, **kwargs):
         path = type + "/" + code
-        return self.api.upload.destroy(path).body
+        return self.fetchResource(resource='upload',method='destroy',params=path).body
 
     def updateVideoUpload(self, code, **kwargs):
         return self.updateUpload('video', code, **kwargs)
@@ -141,7 +172,7 @@ class ApiClient(object):
             if key in kwargs:
                 body[key] = kwargs[key]
         path = type + "/" + code
-        return self.api.upload.update(path, body=body).body
+        return self.fetchResource(resource='upload',method='update',params=path,body=body).body
 
     def uploadVideo(self, **kwargs):
         if 'filepath' not in kwargs:
@@ -168,3 +199,32 @@ class ApiClient(object):
         )
         
         return upload_client.start()
+
+    def downloadVideo(self, **kwargs):
+        if 'filepath' not in kwargs:
+            raise ValueError("invalid filepath specified")
+
+        if 'code' not in kwargs:
+            raise ValueError("invalid code specified")
+        video_download = self.getVideoDownload(kwargs['code'])
+
+        if not video_download:
+            raise ValueError("invalid download code specified")
+
+        if 'deleted' in video_download and video_download['deleted']:
+            raise ValueError("video specified is not available")
+
+        if 'qualities' not in video_download:
+            raise ValueError("no video qualities available")
+
+        video_qualities = [*video_download['qualities']]
+        video_qualities.sort(reverse=True, key=lambda elem: int(elem[:-1]))
+        
+        download_url = video_download['qualities'][video_qualities[0]]
+
+        download_client = DownloadClient(
+            filepath=kwargs['filepath'],
+            download_url=download_url
+        )
+        
+        return download_client.start()
