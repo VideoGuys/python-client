@@ -12,7 +12,7 @@ with open("README.md", "r") as file:
     long_description = file.read()
 
 NAME = "videoguys"
-VERSION = "0.0.2"
+VERSION = "0.0.3"
 
 REQUIRES = [
     "simple_rest_client>=0.5.4"
