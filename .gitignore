@@ -65,3 +65,4 @@ target/
 
 test.py
 .DS_Store
+*.mp4
