@@ -63,7 +63,7 @@ class UploadClient(object):
         totalfilesize = os.path.getsize(self.filepath)
         totalfileparts = math.ceil(totalfilesize/chunkpartsize)
 
-        i = 0        
+        i = 0
         file = open(self.filepath, 'rb')
         for chunk in chunks(file, chunkpartsize):
             body = {
