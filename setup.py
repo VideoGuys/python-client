@@ -12,10 +12,10 @@ with open("README.md", "r") as file:
     long_description = file.read()
 
 NAME = "videoguys"
-VERSION = "0.0.3"
+VERSION = "0.0.4"
 
 REQUIRES = [
-    "simple_rest_client>=0.5.4"
+    "simple_rest_client==0.5.4"
 ]
 
 setup(

@@ -1,1 +1,1 @@
-simple_rest_client >= 0.5.4
+simple_rest_client == 0.5.4
